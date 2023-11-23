@@ -92,21 +92,31 @@ setlocal enabledelayedexpansion
 for /f "tokens=*" %%A in ('dir /b /ad') do (
 echo. >> %log%
 echo %%A
-for /f "tokens=*" %%B in ('dir %%A /b /ad') do (
 
 if %depth%==1 (
+
+set /a totalFolders += 1
+set base_dir=%srcDir%\%%A
+set base_rep=%logDir%\%%A
+
+echo %%A >> %log%
+java -jar %validator% %val_commons_psp% "!base_dir!" --xml-protocol-file "!base_rep!_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% > !base_rep!_report.txt 2>&1
+)
+
+if %depth%==2 (
+for /f "tokens=*" %%B in ('dir %%A /b /ad') do (
 
 set /a totalFolders += 1
 set base_dir=%srcDir%\%%A\%%B
 set base_rep=%logDir%\%%A_%%B
 
 echo %%A	%%B >> %log%
-echo java -jar %validator% %val_commons_psp% "!base_dir!" --xml-protocol-file "!base_rep!_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% > !base_rep!_report.txt 2>&1
-rem java -jar %validator% %val_commons_psp% "!base_dir!" --xml-protocol-file "!base_rep!_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% > !base_rep!_report.txt 2>&1
-
+java -jar %validator% %val_commons_psp% "!base_dir!" --xml-protocol-file "!base_rep!_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% > !base_rep!_report.txt 2>&1
+)
 ) 
 
-if %depth%==2 (
+if %depth%==3 (
+for /f "tokens=*" %%B in ('dir %%A /b /ad') do (
 for /f "tokens=*" %%C in ('dir %%A\%%B /b /ad') do (
 
 set /a totalFolders += 1
@@ -117,9 +127,9 @@ echo %%A	%%B	%%C >> %log%
 rem echo java -jar %validator% %val_commons_psp% "!base_dir!" --xml-protocol-file "!base_rep!_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% > !base_rep!_report.txt 2>&1
 java -jar %validator% %val_commons_psp% "!base_dir!" --xml-protocol-file "!base_rep!_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% > !base_rep!_report.txt 2>&1
 )
+)
+)
 
-)
-)
 )
 
 setlocal disabledelayedexpansion
@@ -164,7 +174,7 @@ echo  Usage:
 echo    %appName% sourceFolder pspLevel [verbosity]
 echo  Params:
 echo    1 :  Source folder full path
-echo    2 :  Steps to reach a PSP subfolder 1-2
+echo    2 :  Steps to reach a PSP subfolder 1-3
 echo    3 :  [optional] Verbosity 1-3 / default: 2
 echo.
 echo  Examples:
