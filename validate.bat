@@ -7,12 +7,12 @@ set appAuthor=Filip Kriz
 title Started: %appName%
 
 echo.
-echo ******************************************************
+echo ********************************
 echo *   %appName%
 echo *   %appDesc%
 echo *   Version :   %appVersion%
 echo *   Author  :   %appAuthor%
-echo ******************************************************
+echo ********************************
 echo.
 
 IF [%1]==[?]  goto:help
@@ -24,6 +24,8 @@ IF NOT [%3]==[] set phase=%3
 IF [%3]==[]   goto:help
 IF [%4]==[]     set verbosity=2
 IF NOT [%4]==[] set verbosity=%4
+IF [%5]==[] set mode=prod
+IF NOT [%5]==[] set mode=test
 
 set runDir=%CD%
 set batchDir=%CD%\_batch
@@ -39,17 +41,17 @@ if %phase%==all (
 set val_disabled=--disable-mp3val --disable-shntool --disable-checkmate 
 )
 if %phase%==base (
-set val_disabled=--disable-mp3val --disable-shntool --disable-checkmate --disable-jhove --disable-jpylyzer --disable-kakadu
+set val_disabled=--disable-mp3val --disable-shntool --disable-checkmate --disable-imagemagick --disable-jhove --disable-jpylyzer --disable-kakadu
 )
 
 set val_tools=--jhove-path %resDir%\jhove --jpylyzer-path %resDir%\jpylyzer --imagemagick-path %resDir%\im --kakadu-path %resDir%\kakadu
 
 FOR /F "usebackq tokens=1,2,3,4 delims=. " %%i IN (`date /t`) DO (
-set datProc=%%l%%k%%j
+set datProc=%%k%%j%%i
 )
 set log=%logDir%\%datProc%_%appName%_log.txt
 
-echo. > %log%
+echo. >> %log%
 echo *** Started ***
 echo Started  :   %date%  %time%
 echo Started  :   %date%  %time% >> %log%
@@ -67,9 +69,11 @@ echo. 2>%badNames%
 
 echo Source folder :  %srcDir%
 echo Source folder :  %srcDir% >> %log%
-echo Subfolder PSP level :  %level%
-echo Subfolder PSP level :  %level% >> %log%
-echo Date of proc  :  %datProc% >> %log%
+echo PSP level :  %level%
+echo PSP level :  %level% >> %log%
+echo Running mode :  %mode%
+echo Running mode :  %mode% >> %log%
+echo Date of proc :  %datProc% >> %log%
 echo.
 echo. >> %log%
 echo FolderList:   %folderList%
@@ -108,7 +112,7 @@ set base_dir=%srcDir%\%%A
 set base_rep=%logDir%\%%A
 
 echo %%A >> %log%
-call:validate !base_dir! !base_rep!
+call:validate !base_dir! !base_rep! %mode%
 )
 
 if %level%==2 (
@@ -119,7 +123,7 @@ set base_dir=%srcDir%\%%A\%%B
 set base_rep=%logDir%\%%A_%%B
 
 echo %%A	%%B >> %log%
-call:validate !base_dir! !base_rep!
+call:validate !base_dir! !base_rep! %mode%
 )
 ) 
 
@@ -132,7 +136,7 @@ set base_dir=%srcDir%\%%A\%%B\%%C
 set base_rep=%logDir%\%%A_%%B_%%C
 
 echo %%A	%%B	%%C >> %log%
-call:validate !base_dir! !base_rep!
+call:validate !base_dir! !base_rep! %mode%
 )
 )
 )
@@ -174,21 +178,26 @@ goto:eof
 :help
 echo *** Help ***
 echo  Usage:
-echo    %appName% sourceFolder pspLevel phase [verbosity]
+echo    %appName% sourceFolder pspLevel phase [verbosity] [mode]
 echo  Params:
 echo    1 :  Source folder full path
 echo    2 :  Steps to reach a PSP subfolder:  1-3
-echo    3 :  Validating phase:  base  all
-echo    4 :  [optional] Verbosity:  1-3 / default: 2
+echo    3 :  Validating phase:  base  all - default: base
+echo    4 :  [optional] Verbosity:  1-3  - default: 2
+echo    5 :  [optional] Running mode: test - default: prod
 echo.
 echo  Examples:
 echo    %appName% C:\some\data 1 base
 echo    %appName% C:\some\data 2 all 3
+echo    %appName% C:\some\data 2 base 1 test
 echo.
 goto:eof
 
 
 :validate
+if %3==test (
 echo java -jar %validator% %val_commons_psp% "%1" --xml-protocol-file "%2_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% > %2_report.txt 2>&1
-rem java -jar %validator% %val_commons_psp% "%1" --xml-protocol-file "%2_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% > %2_report.txt 2>&1
-
+)
+if %3==prod (
+java -jar %validator% %val_commons_psp% "%1" --xml-protocol-file "%2_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% > %2_report.txt 2>&1
+)
