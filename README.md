@@ -1,5 +1,7 @@
 # PSP-Validator-batch
 
+Usage - run in CMD:
+
       validate.bat ?
 
 ## Building the validator client
