@@ -21,7 +21,7 @@ pspLevel = 2 - multiple docs or single periodical
      <srcDir>\<docDir>\<pspDir>
      <srcDir>\<YYYY>\<pspDir>
 
-pspLevel = 3 - ie. periodicals
+pspLevel = 3 - multiple periodicals
 
      <srcDir>\<docDir>\<YYYY>\<pspDir>
 
