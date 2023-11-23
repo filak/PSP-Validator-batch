@@ -12,7 +12,7 @@ Open CMD - go to the repo dir and run:
 
 > Remove any diacritics and spaces from the srcDir and its subfolders !
 
-phase
+phase:
 - base = do not validate images
 - all = validate all
 
@@ -28,6 +28,8 @@ pspLevel = 2 - multiple docs or single periodical
 pspLevel = 3 - multiple periodicals
 
      <srcDir>\<docDir>\<YYYY>\<pspDir>
+
+verbosity: 1-3     
 
 ## Building the validator client
 
