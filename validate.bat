@@ -31,6 +31,7 @@ set validator=%runDir%\KomplexniValidatorCLI-2.3.jar
 
 set val_commons_psp=--verbosity %verbosity% --action VALIDATE_PSP --config-dir %runDir%\validatorConfig --psp 
 set val_disabled=--disable-mp3val --disable-shntool --disable-checkmate
+rem  --disable-jhove --disable-jpylyzer --disable-kakadu
 set val_tools=--jhove-path %resDir%\jhove --jpylyzer-path %resDir%\jpylyzer --imagemagick-path %resDir%\im --kakadu-path %resDir%\kakadu
 
 FOR /F "usebackq tokens=1,2,3,4 delims=. " %%i IN (`date /t`) DO (
