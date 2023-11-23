@@ -8,9 +8,13 @@ Open CMD - go to the repo dir and run:
 
       validate.bat ?
 
-      validate.bat <srcDir> <pspLevel>
+      validate.bat <srcDir> <pspLevel> <phase> [<verbosity>]
 
 > Remove any diacritics and spaces from the srcDir and its subfolders !
+
+phase:
+- base = do not validate images
+- all = validate all
 
 pspLevel = 1 - single doc
 
@@ -24,6 +28,8 @@ pspLevel = 2 - multiple docs or single periodical
 pspLevel = 3 - multiple periodicals
 
      <srcDir>\<docDir>\<YYYY>\<pspDir>
+
+verbosity: 1-3     
 
 ## Building the validator client
 
