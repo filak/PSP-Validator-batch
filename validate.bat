@@ -18,10 +18,12 @@ echo.
 IF [%1]==[?]  goto:help
 IF [%1]==[]   goto:help
 IF NOT [%1]==[] set srcDir=%1
-IF NOT [%2]==[] set depth=%2
+IF NOT [%2]==[] set level=%2
 IF [%2]==[]   goto:help
-IF [%3]==[]     set verbosity=2
-IF NOT [%3]==[] set verbosity=%2
+IF NOT [%3]==[] set phase=%3
+IF [%3]==[]   goto:help
+IF [%4]==[]     set verbosity=2
+IF NOT [%4]==[] set verbosity=%4
 
 set runDir=%CD%
 set batchDir=%CD%\_batch
@@ -32,8 +34,14 @@ set tempDir=%CD%\_temp
 set validator=%runDir%\KomplexniValidatorCLI-2.3.1.jar
 
 set val_commons_psp=--verbosity %verbosity% --action VALIDATE_PSP --config-dir %runDir%\validatorConfig --psp 
+
+if %phase%==all (
 set val_disabled=--disable-mp3val --disable-shntool --disable-checkmate 
-rem --disable-jhove --disable-jpylyzer --disable-kakadu
+)
+if %phase%==base (
+set val_disabled=--disable-mp3val --disable-shntool --disable-checkmate --disable-jhove --disable-jpylyzer --disable-kakadu
+)
+
 set val_tools=--jhove-path %resDir%\jhove --jpylyzer-path %resDir%\jpylyzer --imagemagick-path %resDir%\im --kakadu-path %resDir%\kakadu
 
 FOR /F "usebackq tokens=1,2,3,4 delims=. " %%i IN (`date /t`) DO (
@@ -59,8 +67,8 @@ echo. 2>%badNames%
 
 echo Source folder :  %srcDir%
 echo Source folder :  %srcDir% >> %log%
-echo Subfolder PSP level :  %depth%
-echo Subfolder PSP level :  %depth% >> %log%
+echo Subfolder PSP level :  %level%
+echo Subfolder PSP level :  %level% >> %log%
 echo Date of proc  :  %datProc% >> %log%
 echo.
 echo. >> %log%
@@ -93,17 +101,17 @@ for /f "tokens=*" %%A in ('dir /b /ad') do (
 echo. >> %log%
 echo %%A
 
-if %depth%==1 (
+if %level%==1 (
 
 set /a totalFolders += 1
 set base_dir=%srcDir%\%%A
 set base_rep=%logDir%\%%A
 
 echo %%A >> %log%
-java -jar %validator% %val_commons_psp% "!base_dir!" --xml-protocol-file "!base_rep!_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% > !base_rep!_report.txt 2>&1
+call:validate !base_dir! !base_rep!
 )
 
-if %depth%==2 (
+if %level%==2 (
 for /f "tokens=*" %%B in ('dir %%A /b /ad') do (
 
 set /a totalFolders += 1
@@ -111,11 +119,11 @@ set base_dir=%srcDir%\%%A\%%B
 set base_rep=%logDir%\%%A_%%B
 
 echo %%A	%%B >> %log%
-java -jar %validator% %val_commons_psp% "!base_dir!" --xml-protocol-file "!base_rep!_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% > !base_rep!_report.txt 2>&1
+call:validate !base_dir! !base_rep!
 )
 ) 
 
-if %depth%==3 (
+if %level%==3 (
 for /f "tokens=*" %%B in ('dir %%A /b /ad') do (
 for /f "tokens=*" %%C in ('dir %%A\%%B /b /ad') do (
 
@@ -124,8 +132,7 @@ set base_dir=%srcDir%\%%A\%%B\%%C
 set base_rep=%logDir%\%%A_%%B_%%C
 
 echo %%A	%%B	%%C >> %log%
-rem echo java -jar %validator% %val_commons_psp% "!base_dir!" --xml-protocol-file "!base_rep!_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% > !base_rep!_report.txt 2>&1
-java -jar %validator% %val_commons_psp% "!base_dir!" --xml-protocol-file "!base_rep!_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% > !base_rep!_report.txt 2>&1
+call:validate !base_dir! !base_rep!
 )
 )
 )
@@ -133,10 +140,6 @@ java -jar %validator% %val_commons_psp% "!base_dir!" --xml-protocol-file "!base_
 )
 
 setlocal disabledelayedexpansion
-
-echo.
-echo Done!
-echo.
 
 :finished
 cd /D %runDir%
@@ -171,17 +174,21 @@ goto:eof
 :help
 echo *** Help ***
 echo  Usage:
-echo    %appName% sourceFolder pspLevel [verbosity]
+echo    %appName% sourceFolder pspLevel phase [verbosity]
 echo  Params:
 echo    1 :  Source folder full path
-echo    2 :  Steps to reach a PSP subfolder 1-3
-echo    3 :  [optional] Verbosity 1-3 / default: 2
+echo    2 :  Steps to reach a PSP subfolder:  1-3
+echo    3 :  Validating phase:  base  all
+echo    4 :  [optional] Verbosity:  1-3 / default: 2
 echo.
 echo  Examples:
-echo    %appName% C:\some\data 1
-echo    %appName% C:\some\data 2 3
+echo    %appName% C:\some\data 1 base
+echo    %appName% C:\some\data 2 all 3
 echo.
 goto:eof
 
-endlocal
+
+:validate
+echo java -jar %validator% %val_commons_psp% "%1" --xml-protocol-file "%2_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% > %2_report.txt 2>&1
+rem java -jar %validator% %val_commons_psp% "%1" --xml-protocol-file "%2_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% > %2_report.txt 2>&1
 
