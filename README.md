@@ -6,9 +6,9 @@ Download or clone this repo.
 
 Open CMD - go to the repo dir and run:
 
-      validate.bat ?
+     ...\PSP-Validator-batch> validate.bat ?
 
-      validate.bat <srcDir> <pspLevel> <phase> [<verbosity>]
+     ...\PSP-Validator-batch> validate.bat <srcDir> <pspLevel> <phase> [<verbosity>]
 
 > Remove any diacritics and spaces from the srcDir and its subfolders !
 
@@ -43,9 +43,9 @@ verbosity: 1-3
 
 5. Build - run in CMD:
 
-     > ...\komplexni-validator-master\cliModule>..\gradlew fatJar
+       ...\komplexni-validator-master\cliModule>..\gradlew fatJar
 
 6. Get the KomplexniValidatorCLI-X.X.jar from: 
 
-     ...\komplexni-validator-master\cliModule\build\libs\       
+       ...\komplexni-validator-master\cliModule\build\libs\       
 
