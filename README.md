@@ -1,8 +1,24 @@
 # PSP-Validator-batch
 
-Usage - run in CMD:
+## Usage
+
+Download or clone this repo.
+
+Open CMD - go to the repo dir and run:
 
       validate.bat ?
+
+      validate.bat <srcDir> <pspLevel>
+
+> Remove any diacritics and spaces from the srcDir and its subfolders !
+
+pspLevel = 1
+
+     <srcDir>\<pspSubDir> 
+
+pspLevel = 2 - periodicals
+
+     <srcDir>\YYYY\<pspSubDir>
 
 ## Building the validator client
 
