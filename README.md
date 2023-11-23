@@ -12,9 +12,9 @@ Open CMD - go to the repo dir and run:
 
 > Remove any diacritics and spaces from the srcDir and its subfolders !
 
-srcDir - full path to a folder with PSP packages
+srcDir = full path to a folder with PSP packages
 
-phase:
+phase
 - base = do not validate images
 - all = validate all
 
@@ -31,7 +31,8 @@ pspLevel = 3 - multiple periodicals
 
      <srcDir>\<docDir>\<YYYY>\<pspDir>
 
-verbosity: 1-3     
+verbosity - logging
+- 1-3     
 
 ## Building the validator client
 
