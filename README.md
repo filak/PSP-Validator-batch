@@ -39,7 +39,7 @@ pspLevel = 3 - multiple periodicals
 
      > ...\komplexni-validator-master\cliModule>..\gradlew fatJar
 
-- jars in: 
+6. Get the KomplexniValidatorCLI-X.X.jar from: 
 
      ...\komplexni-validator-master\cliModule\build\libs\       
 
