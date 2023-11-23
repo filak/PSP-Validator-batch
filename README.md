@@ -12,13 +12,18 @@ Open CMD - go to the repo dir and run:
 
 > Remove any diacritics and spaces from the srcDir and its subfolders !
 
-pspLevel = 1
+pspLevel = 1 - single doc
 
-     <srcDir>\<pspSubDir> 
+     <srcDir>\<pspDir>
 
-pspLevel = 2 - periodicals
+pspLevel = 2 - multiple docs or single periodical
 
-     <srcDir>\YYYY\<pspSubDir>
+     <srcDir>\<docDir>\<pspDir>
+     <srcDir>\<YYYY>\<pspDir>
+
+pspLevel = 3 - ie. periodicals
+
+     <srcDir>\<docDir>\<YYYY>\<pspDir>
 
 ## Building the validator client
 
