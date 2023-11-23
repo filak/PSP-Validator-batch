@@ -12,6 +12,8 @@ Open CMD - go to the repo dir and run:
 
 > Remove any diacritics and spaces from the srcDir and its subfolders !
 
+srcDir - full path to a folder with PSP packages
+
 phase:
 - base = do not validate images
 - all = validate all
