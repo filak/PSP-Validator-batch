@@ -27,8 +27,6 @@ IF NOT [%4]==[] set tools=%4
 IF [%5]==[]     set verbosity=2
 IF NOT [%5]==[] set verbosity=%5
 
-if %mode%==group set level=0
-
 set runDir=%CD%
 set batchDir=%CD%\_batch
 set logDir=%CD%\_logs
@@ -122,17 +120,31 @@ echo Level: %level%
 echo %CD%
 setlocal enabledelayedexpansion
 
+if %level%==0 (
+
+echo %srcDir%
+echo %srcDir% >> %log%
+
+set /a totalFolders += 1
+set base_dir=%srcDir%
+set base_rep=%repDir%
+
+call:validate_psp !base_dir! !base_rep!
+goto:finished
+)
+
 for /f "tokens=*" %%A in ('dir /b /ad') do (
-echo. >> %log%
+
 echo %%A
 
 if %level%==1 (
 
 set /a totalFolders += 1
-set base_dir=%%A
-set base_rep=%%A
+set base_dir=%srcDir%\%%A
+set base_rep=%repDir%\%%A
 
 echo %%A >> %log%
+
 call:validate_psp !base_dir! !base_rep!
 )
 
@@ -140,10 +152,11 @@ if %level%==2 (
 for /f "tokens=*" %%B in ('dir %%A /b /ad') do (
 
 set /a totalFolders += 1
-set base_dir=%%A\%%B
-set base_rep=%%A_%%B
+set base_dir=%srcDir%\%%A\%%B
+set base_rep=%repDir%\%%A_%%B
 
 echo %%A	%%B >> %log%
+
 call:validate_psp !base_dir! !base_rep!
 )
 ) 
@@ -153,10 +166,11 @@ for /f "tokens=*" %%B in ('dir %%A /b /ad') do (
 for /f "tokens=*" %%C in ('dir %%A\%%B /b /ad') do (
 
 set /a totalFolders += 1
-set base_dir=%%A\%%B\%%C
-set base_rep=%%A_%%B_%%C
+set base_dir=%srcDir%\%%A\%%B\%%C
+set base_rep=%repDir%\%%A_%%B_%%C
 
 echo %%A	%%B	%%C >> %log%
+
 call:validate_psp !base_dir! !base_rep!
 )
 )
@@ -205,7 +219,7 @@ echo  Usage:
 echo    %appName% sourceFolder psplevel mode tools [verbosity]    
 echo  Params:
 echo    1 :  Source folder full path
-echo    2 :  Steps to reach a PSP subfolder:  1-3 
+echo    2 :  Steps to reach a PSP subfolder:  0-3 
 echo    3 :  Running mode: group / single / test 
 echo    4 :  Use ext. tools:  none im jhove jpyl kdu - default: none
 echo    5 :  [optional] Verbosity:  1-3  - default: 2
@@ -223,14 +237,20 @@ goto:eof
 :validate_psp
 if %mode%==group (
 cd /D %runDir%
-echo java -jar %validator% %val_group% "%srcDir%\%1" --xml-protocol-dir "%repDir%" --tmp-dir %tempDir% %val_tools% %val_disabled% >> %log%
+echo. >> %log%
+java -jar %validator% %val_group% "%1" --xml-protocol-dir "%2" --tmp-dir %tempDir% %val_tools% %val_disabled% >> %log%
+echo. >> %log%
 )
 if %mode%==single (
 cd /D %runDir%
-echo java -jar %validator% %val_psp% "%srcDir%\%1" --xml-protocol-file "%repDir%\%2_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% >> %log%
+echo. >> %log%
+java -jar %validator% %val_psp% "%1" --xml-protocol-file "%2_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% >> %log%
+echo. >> %log%
 )
 if %mode%==test (
 cd /D %runDir%
-echo java -jar %validator% %val_psp% "%srcDir%\%1" --xml-protocol-file "%repDir%\%2_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% >> %log%
+echo. >> %log%
+echo java -jar %validator% %val_psp% "%1" --xml-protocol-file "%2_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% >> %log%
+echo. >> %log%
 )
 
