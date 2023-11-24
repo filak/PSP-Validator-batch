@@ -2,7 +2,7 @@
 setlocal
 set appName=validate
 set appDesc=Validate NDK PSPs
-set appVersion=1.1.0
+set appVersion=1.1.1
 set appAuthor=Filip Kriz
 title Started: %appName%
 
@@ -43,21 +43,28 @@ set disabled_audio=--disable-mp3val --disable-shntool --disable-checkmate
 
 if %tools%==none (
 set val_disabled=%disabled_audio% --disable-imagemagick --disable-jhove --disable-jpylyzer --disable-kakadu
+set val_tools=""
 )
 if %tools%==im (
 set val_disabled=%disabled_audio% --disable-jhove --disable-jpylyzer --disable-kakadu
+set val_tools=--imagemagick-path %resDir%\im
 )
 if %tools%==jhove (
 set val_disabled=%disabled_audio% --disable-imagemagick --disable-jpylyzer --disable-kakadu
+set val_tools=--jhove-path %resDir%\jhove
 )
 if %tools%==jpyl (
 set val_disabled=%disabled_audio% --disable-imagemagick --disable-jhove --disable-kakadu
+set val_tools=--jpylyzer-path %resDir%\jpylyzer
 )
 if %tools%==kdu (
 set val_disabled=%disabled_audio% --disable-imagemagick --disable-jhove --disable-jpylyzer
+set val_tools=--kakadu-path %resDir%\kakadu
 )
-
+if %tools%==all (
+set val_disabled=""
 set val_tools=--jhove-path %resDir%\jhove --jpylyzer-path %resDir%\jpylyzer --imagemagick-path %resDir%\im --kakadu-path %resDir%\kakadu
+)
 
 FOR /F "usebackq tokens=1,2,3,4 delims=. " %%i IN (`date /t`) DO (
 set datProc=%%k%%j%%i
@@ -221,13 +228,13 @@ echo  Params:
 echo    1 :  Source folder full path
 echo    2 :  Steps to reach a PSP subfolder:  0-3 
 echo    3 :  Running mode: group / single / test 
-echo    4 :  Use ext. tools:  none im jhove jpyl kdu - default: none
+echo    4 :  Use ext. tools:  none all im jhove jpyl kdu - default: none
 echo    5 :  [optional] Verbosity:  1-3  - default: 2
 
 echo.
 echo  Examples:
 echo    %appName% D:\some\data 1 group none
-echo    %appName% D:\some\data 2 group jhove
+echo    %appName% D:\some\data 2 group all
 echo    %appName% D:\some\data 1 single im
 echo    %appName% D:\some\data 3 test kdu 3
 echo.
