@@ -1,8 +1,8 @@
 @echo off
 setlocal
 set appName=validate
-set appDesc=Validate a source folder
-set appVersion=1.0.1
+set appDesc=Validate NDK PSPs
+set appVersion=1.1.0
 set appAuthor=Filip Kriz
 title Started: %appName%
 
@@ -18,30 +18,45 @@ echo.
 IF [%1]==[?]  goto:help
 IF [%1]==[]   goto:help
 IF NOT [%1]==[] set srcDir=%1
-IF NOT [%2]==[] set level=%2
 IF [%2]==[]   goto:help
-IF NOT [%3]==[] set phase=%3
+IF NOT [%2]==[] set level=%2
 IF [%3]==[]   goto:help
-IF [%4]==[]     set verbosity=2
-IF NOT [%4]==[] set verbosity=%4
-IF [%5]==[] set mode=prod
-IF NOT [%5]==[] set mode=test
+IF NOT [%3]==[] set mode=%3
+IF [%4]==[]   goto:help
+IF NOT [%4]==[] set tools=%4
+IF [%5]==[]     set verbosity=2
+IF NOT [%5]==[] set verbosity=%5
+
+if %mode%==group set level=0
 
 set runDir=%CD%
 set batchDir=%CD%\_batch
-set logDir=%CD%\_report
+set logDir=%CD%\_logs
+set repDir=%CD%\_reports
 set resDir=%CD%\resources
 set tempDir=%CD%\_temp
 
 set validator=%runDir%\KomplexniValidatorCLI-2.3.1.jar
 
-set val_commons_psp=--verbosity %verbosity% --action VALIDATE_PSP --config-dir %runDir%\validatorConfig --psp 
+set val_psp=--verbosity %verbosity% --action VALIDATE_PSP --config-dir %runDir%\validatorConfig --psp
+set val_group=--verbosity %verbosity% --action VALIDATE_PSP_GROUP --config-dir %runDir%\validatorConfig --psp-group 
 
-if %phase%==all (
-set val_disabled=--disable-mp3val --disable-shntool --disable-checkmate 
+set disabled_audio=--disable-mp3val --disable-shntool --disable-checkmate
+
+if %tools%==none (
+set val_disabled=%disabled_audio% --disable-imagemagick --disable-jhove --disable-jpylyzer --disable-kakadu
 )
-if %phase%==base (
-set val_disabled=--disable-mp3val --disable-shntool --disable-checkmate --disable-imagemagick --disable-jhove --disable-jpylyzer --disable-kakadu
+if %tools%==im (
+set val_disabled=%disabled_audio% --disable-jhove --disable-jpylyzer --disable-kakadu
+)
+if %tools%==jhove (
+set val_disabled=%disabled_audio% --disable-imagemagick --disable-jpylyzer --disable-kakadu
+)
+if %tools%==jpyl (
+set val_disabled=%disabled_audio% --disable-imagemagick --disable-jhove --disable-kakadu
+)
+if %tools%==kdu (
+set val_disabled=%disabled_audio% --disable-imagemagick --disable-jhove --disable-jpylyzer
 )
 
 set val_tools=--jhove-path %resDir%\jhove --jpylyzer-path %resDir%\jpylyzer --imagemagick-path %resDir%\im --kakadu-path %resDir%\kakadu
@@ -49,9 +64,9 @@ set val_tools=--jhove-path %resDir%\jhove --jpylyzer-path %resDir%\jpylyzer --im
 FOR /F "usebackq tokens=1,2,3,4 delims=. " %%i IN (`date /t`) DO (
 set datProc=%%k%%j%%i
 )
-set log=%logDir%\%datProc%_%appName%_log.txt
+set log=%logDir%\%datProc%_%appName%_%mode%_%tools%_log.txt
 
-echo. >> %log%
+echo. > %log%
 echo *** Started ***
 echo Started  :   %date%  %time%
 echo Started  :   %date%  %time% >> %log%
@@ -67,12 +82,14 @@ set badNames=%batchDir%\S_BadPath.txt
 
 echo. 2>%badNames%
 
-echo Source folder :  %srcDir%
-echo Source folder :  %srcDir% >> %log%
-echo PSP level :  %level%
-echo PSP level :  %level% >> %log%
+echo Source folder:  %srcDir%
+echo Source folder:  %srcDir% >> %log%
 echo Running mode :  %mode%
 echo Running mode :  %mode% >> %log%
+echo Ext. tools   :  %tools%
+echo Ext. tools   :  %tools% >> %log%
+echo PSP level :  %level%
+echo PSP level :  %level% >> %log%
 echo Date of proc :  %datProc% >> %log%
 echo.
 echo. >> %log%
@@ -96,9 +113,13 @@ if not %badFolderNames%==0 goto:finished
 echo.
 java -jar %validator% --version
 echo.
-echo Processing...
-echo.
 
+echo Processing ... %mode% ... %srcDir%
+echo.
+cd /D %srcDir%
+
+echo Level: %level%
+echo %CD%
 setlocal enabledelayedexpansion
 
 for /f "tokens=*" %%A in ('dir /b /ad') do (
@@ -108,22 +129,22 @@ echo %%A
 if %level%==1 (
 
 set /a totalFolders += 1
-set base_dir=%srcDir%\%%A
-set base_rep=%logDir%\%%A
+set base_dir=%%A
+set base_rep=%%A
 
 echo %%A >> %log%
-call:validate !base_dir! !base_rep! %mode%
+call:validate_psp !base_dir! !base_rep!
 )
 
 if %level%==2 (
 for /f "tokens=*" %%B in ('dir %%A /b /ad') do (
 
 set /a totalFolders += 1
-set base_dir=%srcDir%\%%A\%%B
-set base_rep=%logDir%\%%A_%%B
+set base_dir=%%A\%%B
+set base_rep=%%A_%%B
 
 echo %%A	%%B >> %log%
-call:validate !base_dir! !base_rep! %mode%
+call:validate_psp !base_dir! !base_rep!
 )
 ) 
 
@@ -132,17 +153,16 @@ for /f "tokens=*" %%B in ('dir %%A /b /ad') do (
 for /f "tokens=*" %%C in ('dir %%A\%%B /b /ad') do (
 
 set /a totalFolders += 1
-set base_dir=%srcDir%\%%A\%%B\%%C
-set base_rep=%logDir%\%%A_%%B_%%C
+set base_dir=%%A\%%B\%%C
+set base_rep=%%A_%%B_%%C
 
 echo %%A	%%B	%%C >> %log%
-call:validate !base_dir! !base_rep! %mode%
+call:validate_psp !base_dir! !base_rep!
 )
 )
 )
 
 )
-
 setlocal disabledelayedexpansion
 
 :finished
@@ -150,14 +170,18 @@ cd /D %runDir%
 echo.
 echo. >> %log%
 echo *** Finished ***
-echo Finished :   %date%  %time%
-echo Finished :   %date%  %time% >> %log%
+echo Finished   :   %date%  %time%
+echo Finished   :   %date%  %time% >> %log%
 echo.
-echo Report   :   %log%
-echo Report   :   %log% >> %log%
+echo Log file   :   %log%
+echo Log file   :   %log% >> %log%
+echo Report dir :   %repDir%
+echo Report dir :   %repDir% >> %log%
+if not %mode%==group (
 echo.
-echo Processed:   %totalFolders%  Folders
-echo Processed:   %totalFolders%  Folders >> %log%
+echo Processed  :   %totalFolders%  Folders
+echo Processed  :   %totalFolders%  Folders >> %log%
+)
 echo.
 echo Bad folder names :   %badFolderNames%
 echo Bad folder names :   %badFolderNames% >> %log%
@@ -178,26 +202,35 @@ goto:eof
 :help
 echo *** Help ***
 echo  Usage:
-echo    %appName% sourceFolder pspLevel phase [verbosity] [mode]
+echo    %appName% sourceFolder psplevel mode tools [verbosity]    
 echo  Params:
 echo    1 :  Source folder full path
-echo    2 :  Steps to reach a PSP subfolder:  1-3
-echo    3 :  Validating phase:  base  all - default: base
-echo    4 :  [optional] Verbosity:  1-3  - default: 2
-echo    5 :  [optional] Running mode: test - default: prod
+echo    2 :  Steps to reach a PSP subfolder:  1-3 
+echo    3 :  Running mode: group / single / test 
+echo    4 :  Use ext. tools:  none im jhove jpyl kdu - default: none
+echo    5 :  [optional] Verbosity:  1-3  - default: 2
+
 echo.
 echo  Examples:
-echo    %appName% C:\some\data 1 base
-echo    %appName% C:\some\data 2 all 3
-echo    %appName% C:\some\data 2 base 1 test
+echo    %appName% D:\some\data 1 group none
+echo    %appName% D:\some\data 2 group jhove
+echo    %appName% D:\some\data 1 single im
+echo    %appName% D:\some\data 3 test kdu 3
 echo.
 goto:eof
 
 
-:validate
-if %3==test (
-echo java -jar %validator% %val_commons_psp% "%1" --xml-protocol-file "%2_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% > %2_report.txt 2>&1
+:validate_psp
+if %mode%==group (
+cd /D %runDir%
+echo java -jar %validator% %val_group% "%srcDir%\%1" --xml-protocol-dir "%repDir%" --tmp-dir %tempDir% %val_tools% %val_disabled% >> %log%
 )
-if %3==prod (
-java -jar %validator% %val_commons_psp% "%1" --xml-protocol-file "%2_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% > %2_report.txt 2>&1
+if %mode%==single (
+cd /D %runDir%
+echo java -jar %validator% %val_psp% "%srcDir%\%1" --xml-protocol-file "%repDir%\%2_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% >> %log%
 )
+if %mode%==test (
+cd /D %runDir%
+echo java -jar %validator% %val_psp% "%srcDir%\%1" --xml-protocol-file "%repDir%\%2_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% >> %log%
+)
+
