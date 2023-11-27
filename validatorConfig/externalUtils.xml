@@ -232,7 +232,8 @@
                 <command>${UTIL_PATH}kdu_expand.exe -version</command>
                 <parser>
                     <stream>STDOUT</stream>
-                    <regexp>(?s).*</regexp>
+                    <!--<regexp>Current core system version is \S*</regexp>-->
+                    <regexp>v[\.0-9]+</regexp>
                 </parser>
             </operatingSystem>
             <!--demo app does not work in macOS 10.12 Sierra, so not tested-->
