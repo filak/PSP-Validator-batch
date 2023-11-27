@@ -2,7 +2,7 @@
 setlocal
 set appName=validate
 set appDesc=Validate NDK PSPs
-set appVersion=1.1.1
+set appVersion=1.1.2 2023-11-27
 set appAuthor=Filip Kriz
 title Started: %appName%
 
@@ -35,36 +35,41 @@ set resDir=%CD%\resources
 set tempDir=%CD%\_temp
 
 set validator=%runDir%\KomplexniValidatorCLI-2.3.1.jar
+set jpyl=jpylyzer\1.18.0
 
 set val_psp=--verbosity %verbosity% --action VALIDATE_PSP --config-dir %runDir%\validatorConfig --psp
 set val_group=--verbosity %verbosity% --action VALIDATE_PSP_GROUP --config-dir %runDir%\validatorConfig --psp-group 
 
 set disabled_audio=--disable-mp3val --disable-shntool --disable-checkmate
+set val_tools=--jhove-path %resDir%\jhove --jpylyzer-path %resDir%\%jpyl% --imagemagick-path %resDir%\im --kakadu-path %resDir%\kakadu
 
 if %tools%==none (
 set val_disabled=%disabled_audio% --disable-imagemagick --disable-jhove --disable-jpylyzer --disable-kakadu
-set val_tools=
 )
 if %tools%==im (
 set val_disabled=%disabled_audio% --disable-jhove --disable-jpylyzer --disable-kakadu
-set val_tools=--imagemagick-path %resDir%\im
+rem set val_tools=--imagemagick-path %resDir%\im
 )
 if %tools%==jhove (
 set val_disabled=%disabled_audio% --disable-imagemagick --disable-jpylyzer --disable-kakadu
-set val_tools=--jhove-path %resDir%\jhove
+rem set val_tools=--jhove-path %resDir%\jhove
 )
 if %tools%==jpyl (
 set val_disabled=%disabled_audio% --disable-imagemagick --disable-jhove --disable-kakadu
-set val_tools=--jpylyzer-path %resDir%\jpylyzer
+rem set val_tools=--jpylyzer-path %resDir%\%jpyl%
 )
 if %tools%==kdu (
 set val_disabled=%disabled_audio% --disable-imagemagick --disable-jhove --disable-jpylyzer
-set val_tools=--kakadu-path %resDir%\kakadu
+rem set val_tools=--kakadu-path %resDir%\kakadu
+) 
+if %tools%==jhove_jpyl (
+rem set val_disabled=%disabled_audio%
+set val_disabled=%disabled_audio% --disable-imagemagick --disable-kakadu
+rem set val_tools=--jhove-path %resDir%\jhove --jpylyzer-path %resDir%\%jpyl% --imagemagick-path %resDir%\im --kakadu-path %resDir%\kakadu
 )
 if %tools%==images (
-rem set val_disabled=%disabled_audio%
-set val_disabled=%disabled_audio% --disable-jhove --disable-jpylyzer
-set val_tools=--jhove-path %resDir%\jhove --jpylyzer-path %resDir%\jpylyzer --imagemagick-path %resDir%\im --kakadu-path %resDir%\kakadu
+set val_disabled=%disabled_audio%
+rem set val_tools=--jhove-path %resDir%\jhove --jpylyzer-path %resDir%\%jpyl% --imagemagick-path %resDir%\im --kakadu-path %resDir%\kakadu
 )
 
 FOR /F "usebackq tokens=1,2,3,4 delims=. " %%i IN (`date /t`) DO (
@@ -223,7 +228,7 @@ echo  Params:
 echo    1 :  Source folder full path
 echo    2 :  Steps to reach a PSP subfolder:  0-3 
 echo    3 :  Running mode: group / single / test 
-echo    4 :  Use ext. tools:  none images im jhove jpyl kdu - default: none
+echo    4 :  Use ext. tools:  none images im jhove jpyl kdu jhove_jpyl - default: none
 echo    5 :  [optional] Verbosity:  1-3  - default: 2
 
 echo.
