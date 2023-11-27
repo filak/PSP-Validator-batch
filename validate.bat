@@ -246,19 +246,28 @@ if %mode%==group (
 cd /D %runDir%
 IF NOT EXIST %repDir%\%2 (md %repDir%\%2)
 echo. >> %log%
-echo java -jar %validator% %val_group% "%1" --xml-protocol-dir "%repDir%\%2" --tmp-dir %tempDir% %val_tools% %val_disabled% >> %log%
+echo Report: %repDir%\%2_report.txt >> %log%
 echo. >> %log%
+echo java -jar %validator% %val_group% "%1" --xml-protocol-dir "%repDir%\%2" --tmp-dir %tempDir% %val_tools% %val_disabled% >> %log%
+java -jar %validator% %val_group% "%1" --xml-protocol-dir "%repDir%\%2" --tmp-dir %tempDir% %val_tools% %val_disabled% > %repDir%\%2_report.txt
+echo. >> %log%
+cd /D %srcDir%
 )
 if %mode%==single (
 cd /D %runDir%
 echo. >> %log%
-java -jar %validator% %val_psp% "%1" --xml-protocol-file "%repDir%\%2_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% >> %log%
+echo Report: %repDir%\%2_report.txt >> %log%
 echo. >> %log%
+echo java -jar %validator% %val_psp% "%1" --xml-protocol-file "%repDir%\%2_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% >> %log%
+java -jar %validator% %val_psp% "%1" --xml-protocol-file "%repDir%\%2_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% > %repDir%\%2_report.txt
+echo. >> %log%
+cd /D %srcDir%
 )
 if %mode%==test (
 cd /D %runDir%
 echo. >> %log%
 echo java -jar %validator% %val_psp% "%1" --xml-protocol-file "%repDir%\%2_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% >> %log%
 echo. >> %log%
+cd /D %srcDir%
 )
 
