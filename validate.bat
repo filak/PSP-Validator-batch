@@ -140,7 +140,7 @@ set /a totalFolders += 1
 
 for %%I in (.) do set base_dir=%%~nxI
 
-call:validate_psp %srcDir% %repDir%\!base_dir!
+call:validate_psp %srcDir% !base_dir!
 goto:finished
 )
 
@@ -154,7 +154,7 @@ set /a totalFolders += 1
 set base_dir=%%A
 
 echo %%A >> %log%
-call:validate_psp %srcDir%\!base_dir! %repDir%\!base_dir!
+call:validate_psp %srcDir%\!base_dir! !base_dir!
 )
 
 if %level%==2 (
@@ -165,7 +165,7 @@ set base_dir=%%A\%%B
 set base_rep=%%A_%%B
 
 echo %%A	%%B >> %log%
-call:validate_psp %srcDir%\!base_dir! %repDir%\!base_rep!
+call:validate_psp %srcDir%\!base_dir! !base_rep!
 )
 ) 
 
@@ -178,7 +178,7 @@ set base_dir=%%A\%%B\%%C
 set base_rep=%%A_%%B_%%C
 
 echo %%A	%%B	%%C >> %log%
-call:validate_psp %srcDir%\!base_dir! %repDir%\!base_rep!
+call:validate_psp %srcDir%\!base_dir! !base_rep!
 )
 )
 )
@@ -244,21 +244,21 @@ goto:eof
 :validate_psp
 if %mode%==group (
 cd /D %runDir%
+IF NOT EXIST %repDir%\%2 (md %repDir%\%2)
 echo. >> %log%
-REM Not working properly - see https://github.com/NLCR/komplexni-validator/issues/156
-echo java -jar %validator% %val_group% "%1" --xml-protocol-dir "%2" --tmp-dir %tempDir% %val_tools% %val_disabled% >> %log%
+echo java -jar %validator% %val_group% "%1" --xml-protocol-dir "%repDir%\%2" --tmp-dir %tempDir% %val_tools% %val_disabled% >> %log%
 echo. >> %log%
 )
 if %mode%==single (
 cd /D %runDir%
 echo. >> %log%
-java -jar %validator% %val_psp% "%1" --xml-protocol-file "%2_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% >> %log%
+java -jar %validator% %val_psp% "%1" --xml-protocol-file "%repDir%\%2_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% >> %log%
 echo. >> %log%
 )
 if %mode%==test (
 cd /D %runDir%
 echo. >> %log%
-echo java -jar %validator% %val_psp% "%1" --xml-protocol-file "%2_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% >> %log%
+echo java -jar %validator% %val_psp% "%1" --xml-protocol-file "%repDir%\%2_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% >> %log%
 echo. >> %log%
 )
 
