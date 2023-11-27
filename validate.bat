@@ -240,13 +240,14 @@ goto:eof
 if %mode%==group (
 cd /D %runDir%
 echo. >> %log%
+REM Not working properly - see https://github.com/NLCR/komplexni-validator/issues/156
 echo java -jar %validator% %val_group% "%1" --xml-protocol-dir "%2" --tmp-dir %tempDir% %val_tools% %val_disabled% >> %log%
 echo. >> %log%
 )
 if %mode%==single (
 cd /D %runDir%
 echo. >> %log%
-echo java -jar %validator% %val_psp% "%1" --xml-protocol-file "%2_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% >> %log%
+java -jar %validator% %val_psp% "%1" --xml-protocol-file "%2_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% >> %log%
 echo. >> %log%
 )
 if %mode%==test (
