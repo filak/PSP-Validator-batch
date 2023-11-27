@@ -32,20 +32,20 @@ Open CMD - go to the repo dir and run:
 
 srcDir = full path of a folder with subfolders containing PSP packages
 
-pspLevel = 0 - single PSP dir
+pspLevel = 0 - single PSP dir - no group mode !
 
      <srcDir> = <pspDir>
 
-pspLevel = 1 - single doc
+pspLevel = 1 - single doc - group mode: 0
 
      <srcDir>\<pspDir>
 
-pspLevel = 2 - multiple docs or single periodical
+pspLevel = 2 - multiple docs or single periodical - group mode: 1
 
      <srcDir>\<docDir>\<pspDir>
      <srcDir>\<YYYY>\<pspDir>
 
-pspLevel = 3 - multiple periodicals
+pspLevel = 3 - multiple periodicals - group mode: 2
 
      <srcDir>\<docDir>\<YYYY>\<pspDir>
 
