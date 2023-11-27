@@ -59,7 +59,7 @@ tools
 - images - use all external tools
 - im, jhove, jpyl, kdu - use specific tool
 
-verbosity - logging
+verbosity - logging - default: 2
 - 1-3     
 
 ## Building the validator client
