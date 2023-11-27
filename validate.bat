@@ -43,7 +43,7 @@ set disabled_audio=--disable-mp3val --disable-shntool --disable-checkmate
 
 if %tools%==none (
 set val_disabled=%disabled_audio% --disable-imagemagick --disable-jhove --disable-jpylyzer --disable-kakadu
-set val_tools=""
+set val_tools=
 )
 if %tools%==im (
 set val_disabled=%disabled_audio% --disable-jhove --disable-jpylyzer --disable-kakadu
@@ -61,8 +61,9 @@ if %tools%==kdu (
 set val_disabled=%disabled_audio% --disable-imagemagick --disable-jhove --disable-jpylyzer
 set val_tools=--kakadu-path %resDir%\kakadu
 )
-if %tools%==all (
-set val_disabled=""
+if %tools%==images (
+rem set val_disabled=%disabled_audio%
+set val_disabled=%disabled_audio% --disable-jhove --disable-jpylyzer
 set val_tools=--jhove-path %resDir%\jhove --jpylyzer-path %resDir%\jpylyzer --imagemagick-path %resDir%\im --kakadu-path %resDir%\kakadu
 )
 
@@ -119,12 +120,10 @@ echo.
 java -jar %validator% --version
 echo.
 
-echo Processing ... %mode% ... %srcDir%
+echo Processing ... %mode% ... %srcDir% ... level %level%
 echo.
 cd /D %srcDir%
 
-echo Level: %level%
-echo %CD%
 setlocal enabledelayedexpansion
 
 if %level%==0 (
@@ -133,10 +132,10 @@ echo %srcDir%
 echo %srcDir% >> %log%
 
 set /a totalFolders += 1
-set base_dir=%srcDir%
-set base_rep=%repDir%
 
-call:validate_psp !base_dir! !base_rep!
+for %%I in (.) do set base_dir=%%~nxI
+
+call:validate_psp %srcDir% %repDir%\!base_dir!
 goto:finished
 )
 
@@ -147,24 +146,21 @@ echo %%A
 if %level%==1 (
 
 set /a totalFolders += 1
-set base_dir=%srcDir%\%%A
-set base_rep=%repDir%\%%A
+set base_dir=%%A
 
 echo %%A >> %log%
-
-call:validate_psp !base_dir! !base_rep!
+call:validate_psp %srcDir%\!base_dir! %repDir%\!base_dir!
 )
 
 if %level%==2 (
 for /f "tokens=*" %%B in ('dir %%A /b /ad') do (
 
 set /a totalFolders += 1
-set base_dir=%srcDir%\%%A\%%B
-set base_rep=%repDir%\%%A_%%B
+set base_dir=%%A\%%B
+set base_rep=%%A_%%B
 
 echo %%A	%%B >> %log%
-
-call:validate_psp !base_dir! !base_rep!
+call:validate_psp %srcDir%\!base_dir! %repDir%\!base_rep!
 )
 ) 
 
@@ -173,12 +169,11 @@ for /f "tokens=*" %%B in ('dir %%A /b /ad') do (
 for /f "tokens=*" %%C in ('dir %%A\%%B /b /ad') do (
 
 set /a totalFolders += 1
-set base_dir=%srcDir%\%%A\%%B\%%C
-set base_rep=%repDir%\%%A_%%B_%%C
+set base_dir=%%A\%%B\%%C
+set base_rep=%%A_%%B_%%C
 
 echo %%A	%%B	%%C >> %log%
-
-call:validate_psp !base_dir! !base_rep!
+call:validate_psp %srcDir%\!base_dir! %repDir%\!base_rep!
 )
 )
 )
@@ -228,13 +223,13 @@ echo  Params:
 echo    1 :  Source folder full path
 echo    2 :  Steps to reach a PSP subfolder:  0-3 
 echo    3 :  Running mode: group / single / test 
-echo    4 :  Use ext. tools:  none all im jhove jpyl kdu - default: none
+echo    4 :  Use ext. tools:  none images im jhove jpyl kdu - default: none
 echo    5 :  [optional] Verbosity:  1-3  - default: 2
 
 echo.
 echo  Examples:
 echo    %appName% D:\some\data 1 group none
-echo    %appName% D:\some\data 2 group all
+echo    %appName% D:\some\data 2 group images
 echo    %appName% D:\some\data 1 single im
 echo    %appName% D:\some\data 3 test kdu 3
 echo.
@@ -245,13 +240,13 @@ goto:eof
 if %mode%==group (
 cd /D %runDir%
 echo. >> %log%
-java -jar %validator% %val_group% "%1" --xml-protocol-dir "%2" --tmp-dir %tempDir% %val_tools% %val_disabled% >> %log%
+echo java -jar %validator% %val_group% "%1" --xml-protocol-dir "%2" --tmp-dir %tempDir% %val_tools% %val_disabled% >> %log%
 echo. >> %log%
 )
 if %mode%==single (
 cd /D %runDir%
 echo. >> %log%
-java -jar %validator% %val_psp% "%1" --xml-protocol-file "%2_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% >> %log%
+echo java -jar %validator% %val_psp% "%1" --xml-protocol-file "%2_protocol.xml" --tmp-dir %tempDir% %val_tools% %val_disabled% >> %log%
 echo. >> %log%
 )
 if %mode%==test (
