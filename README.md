@@ -64,6 +64,10 @@ verbosity - logging - default: 2
 
 ## Building the validator client
 
+https://github.com/NLCR/komplexni-validator/
+
+> Current build KomplexniValidatorCLI-2.3.1.jar - last commit [1055915](https://github.com/NLCR/komplexni-validator/commit/1055915f78a8acb22bd8504c16461c377341f979)
+
 1. Download the project https://github.com/NLCR/komplexni-validator/archive/refs/heads/master.zip
 
 2. Extract to dir komplexni-validator-master
