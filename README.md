@@ -70,7 +70,7 @@ https://github.com/NLCR/komplexni-validator/
 
 1. Download the project https://github.com/NLCR/komplexni-validator/archive/refs/heads/master.zip
 
-2. Extract to dir komplexni-validator-master
+2. Extract to **komplexni-validator-master** dir
 
 3. Open the dir in CMD
 
