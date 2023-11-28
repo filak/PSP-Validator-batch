@@ -4,7 +4,7 @@
 
 Download or clone this repo.
 
-Open CMD - go to the repo dir and run:
+Open CMD - go to the repo dir **PSP-Validator-batch** and run:
 
 ```
 ...\PSP-Validator-batch> validate.bat ?
