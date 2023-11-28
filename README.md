@@ -62,6 +62,36 @@ tools
 verbosity - logging - default: 2
 - 1-3     
 
+## Changes in validatorConfig
+
+> Only in DMF Periodical_1.9 and Monograph_2.0
+
+### jhove.xml
+
+```
+<validation name="Počet dlaždic">
+    <xmlDataExtraction resultType="INTEGER">
+        <firstNonempty>
+        <!--
+            <xpath>count(.//j:name[text()='TilePart'])</xpath>
+            <xpath>count(.//j2:name[text()='TilePart'])</xpath>
+          -->
+            <xpath>count(//*[local-name()='name'][text()='TilePart'])</xpath>
+        </firstNonempty>
+    </xmlDataExtraction>
+```
+### primary_mets_header.xml
+
+```
+            <element name="mets:metsHdr">
+                <expectedAttributes>
+                    <attribute name="LASTMODDATE" mandatory="true">
+                        <expectedContent>
+                            <oneOf>
+...
+<regexp>...(?&lt;timezone&gt;Z?|...</regexp>
+```
+
 ## Building the validator client
 
 https://github.com/NLCR/komplexni-validator/
